@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "crawl": "node crawler.js",
+    "test": "node highest-standard-test-v2.js",
+    "test:visual": "node visual-test.js",
+    "test:structure": "node highest-standard-test-v2.js",
+    "recrawl-and-test": "node crawler.js && node highest-standard-test-v2.js",
+    "validate": "node highest-standard-test-v2.js"
   },
   "repository": {
     "type": "git",
