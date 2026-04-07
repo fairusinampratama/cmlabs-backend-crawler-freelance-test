@@ -91,7 +91,12 @@ async function crawlPage(browser, target) {
     });
     
     // Extract the fully rendered HTML
-    const html = await page.content();
+    let html = await page.content();
+    
+    // Add base tag to fix relative URL resolution (CSS, images, etc.)
+    if (!html.includes('<base')) {
+      html = html.replace(/<head>/i, `<head>\n  <base href="${url}/">`);
+    }
     
     // Format the HTML for readability
     const formattedHTML = formatHTML(html);
