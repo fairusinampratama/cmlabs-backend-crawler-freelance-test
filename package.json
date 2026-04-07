@@ -1,0 +1,24 @@
+{
+  "name": "cmlabs-backend-crawler-freelance-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fairusinampratama/cmlabs-backend-crawler-freelance-test.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fairusinampratama/cmlabs-backend-crawler-freelance-test/issues"
+  },
+  "homepage": "https://github.com/fairusinampratama/cmlabs-backend-crawler-freelance-test#readme",
+  "dependencies": {
+    "playwright": "^1.59.1"
+  }
+}
