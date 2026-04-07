@@ -15,6 +15,63 @@ const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 // Output directory
 const OUTPUT_DIR = path.join(__dirname, 'output');
 
+/**
+ * Pretty-print HTML with proper indentation
+ * @param {string} html - Raw HTML string
+ * @returns {string} - Formatted HTML
+ */
+function formatHTML(html) {
+  let formatted = '';
+  let indent = 0;
+  const tab = '  ';
+  
+  // Split by tags but keep the tags
+  const tokens = html.split(/(<[^>]+>)/g).filter(token => token.trim() !== '');
+  
+  for (let token of tokens) {
+    token = token.trim();
+    if (!token) continue;
+    
+    // Check if it's a closing tag
+    if (token.startsWith('</')) {
+      indent = Math.max(0, indent - 1);
+      formatted += tab.repeat(indent) + token + '\n';
+    }
+    // Self-closing tag or void element
+    else if (token.match(/^<(br|hr|img|input|meta|link|area|base|col|embed|param|source|track|wbr)/i) || 
+             token.match(/\/>$/)) {
+      formatted += tab.repeat(indent) + token + '\n';
+    }
+    // Opening tag
+    else if (token.startsWith('<') && !token.startsWith('<!--')) {
+      formatted += tab.repeat(indent) + token + '\n';
+      // Don't increase indent for certain tags that usually don't have children
+      if (!token.match(/^<(script|style|pre|code)/i)) {
+        indent++;
+      }
+    }
+    // Text content or comment
+    else {
+      // Inline text if it's short
+      if (token.length < 80 && !token.includes('\n')) {
+        // Remove previous newline and append inline
+        formatted = formatted.slice(0, -1) + token;
+        formatted += '\n';
+      } else {
+        // Long text - wrap at reasonable length
+        const lines = token.split('\n').map(line => line.trim()).filter(line => line);
+        for (const line of lines) {
+          if (line) {
+            formatted += tab.repeat(indent) + line + '\n';
+          }
+        }
+      }
+    }
+  }
+  
+  return formatted;
+}
+
 async function crawlPage(browser, target) {
   const { url, filename } = target;
   
@@ -36,11 +93,14 @@ async function crawlPage(browser, target) {
     // Extract the fully rendered HTML
     const html = await page.content();
     
+    // Format the HTML for readability
+    const formattedHTML = formatHTML(html);
+    
     // Write to output file
     const outputPath = path.join(OUTPUT_DIR, filename);
-    fs.writeFileSync(outputPath, html, 'utf-8');
+    fs.writeFileSync(outputPath, formattedHTML, 'utf-8');
     
-    console.log(`✓ Successfully saved: ${filename} (${html.length} bytes)`);
+    console.log(`✓ Successfully saved: ${filename} (${formattedHTML.length} bytes)`);
     
   } catch (error) {
     console.error(`✗ Failed to crawl ${url}: ${error.message}`);
@@ -67,7 +127,7 @@ async function main() {
     
     console.log('Browser launched in headless mode\n');
     
-    // Crawl each target URL
+    // Crawl each target URL sequentially
     for (const target of targets) {
       await crawlPage(browser, target);
     }
