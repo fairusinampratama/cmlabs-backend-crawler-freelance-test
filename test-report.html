@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Test Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+    h1 { text-align: center; color: #333; }
+    .summary { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .site-card { background: white; margin-bottom: 30px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .site-header { background: #2c3e50; color: white; padding: 15px 20px; }
+    .site-header h2 { margin: 0; }
+    .viewport-section { padding: 20px; border-bottom: 1px solid #eee; }
+    .viewport-section:last-child { border-bottom: none; }
+    .viewport-title { font-weight: bold; margin-bottom: 15px; color: #666; }
+    .comparison { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+    .image-box { text-align: center; }
+    .image-box img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; }
+    .image-label { font-size: 12px; color: #666; margin-top: 5px; }
+    .similarity-score { 
+      display: inline-block; 
+      padding: 5px 15px; 
+      border-radius: 20px; 
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .score-high { background: #d4edda; color: #155724; }
+    .score-medium { background: #fff3cd; color: #856404; }
+    .score-low { background: #f8d7da; color: #721c24; }
+    .validations { margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; }
+    .validation-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #ddd; }
+    .validation-item:last-child { border-bottom: none; }
+    .pass { color: #28a745; }
+    .fail { color: #dc3545; }
+    .overall-pass { background: #d4edda; }
+    .overall-fail { background: #f8d7da; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Visual Test Report</h1>
+  
+  <div class="summary">
+    <h3>Summary</h3>
+    <p><strong>Test Date:</strong> 4/7/2026, 3:54:50 PM</p>
+    <p><strong>Total Sites:</strong> 3</p>
+    <p><strong>Passed:</strong> 1</p>
+    <p><strong>Failed:</strong> 2</p>
+  </div>
+
+  <div class="site-card overall-fail">
+    <div class="site-header">
+      <h2>https://cmlabs.co ❌</h2>
+    </div>
+
+    <div class="viewport-section">
+      <div class="viewport-title">Viewport: 1920xdesktop</div>
+      <div class="similarity-score score-low">
+        Similarity: 70.47%
+      </div>
+      
+      <div class="comparison">
+        <div class="image-box">
+          <img src="screenshots/cmlabs-live-desktop.png" alt="Live site">
+          <div class="image-label">Live Website</div>
+        </div>
+        <div class="image-box">
+          <img src="screenshots/cmlabs-crawled-desktop.png" alt="Crawled">
+          <div class="image-label">Crawled HTML</div>
+        </div>
+        <div class="image-box">
+          <img src="screenshots/cmlabs-diff-desktop.png" alt="Diff">
+          <div class="image-label">Diff (red = different)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="validations">
+      <strong>Content Validations:</strong>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> File Size</span>
+        <span>651.8 KB</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> Has "cmlabs" text</span>
+        <span>Found</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> Has H1 heading</span>
+        <span>1 H1 tags</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> No empty root divs</span>
+        <span>Clean</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-card overall-pass">
+    <div class="site-header">
+      <h2>https://sequence.day ✅</h2>
+    </div>
+
+    <div class="viewport-section">
+      <div class="viewport-title">Viewport: 1920xdesktop</div>
+      <div class="similarity-score score-high">
+        Similarity: 96.96%
+      </div>
+      
+      <div class="comparison">
+        <div class="image-box">
+          <img src="screenshots/sequence-live-desktop.png" alt="Live site">
+          <div class="image-label">Live Website</div>
+        </div>
+        <div class="image-box">
+          <img src="screenshots/sequence-crawled-desktop.png" alt="Crawled">
+          <div class="image-label">Crawled HTML</div>
+        </div>
+        <div class="image-box">
+          <img src="screenshots/sequence-diff-desktop.png" alt="Diff">
+          <div class="image-label">Diff (red = different)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="validations">
+      <strong>Content Validations:</strong>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> File Size</span>
+        <span>157.2 KB</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> Has "Sequence" text</span>
+        <span>Found</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> Has H1 heading</span>
+        <span>1 H1 tags</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> No empty root divs</span>
+        <span>Clean</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-card overall-fail">
+    <div class="site-header">
+      <h2>https://react.dev ❌</h2>
+    </div>
+
+    <div class="viewport-section">
+      <div class="viewport-title">Viewport: 1920xdesktop</div>
+      <div class="similarity-score score-low">
+        Similarity: 82.76%
+      </div>
+      
+      <div class="comparison">
+        <div class="image-box">
+          <img src="screenshots/react-live-desktop.png" alt="Live site">
+          <div class="image-label">Live Website</div>
+        </div>
+        <div class="image-box">
+          <img src="screenshots/react-crawled-desktop.png" alt="Crawled">
+          <div class="image-label">Crawled HTML</div>
+        </div>
+        <div class="image-box">
+          <img src="screenshots/react-diff-desktop.png" alt="Diff">
+          <div class="image-label">Diff (red = different)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="validations">
+      <strong>Content Validations:</strong>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> File Size</span>
+        <span>342.4 KB</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> Has "React" text</span>
+        <span>Found</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> Has H1 heading</span>
+        <span>2 H1 tags</span>
+      </div>
+
+      <div class="validation-item">
+        <span><span class="pass">✓</span> No empty root divs</span>
+        <span>Clean</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
