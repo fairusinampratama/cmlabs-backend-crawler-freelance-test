@@ -1,15 +1,22 @@
 {
-  "name": "cmlabs-backend-crawler-freelance-test",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "cmlabs-backend-crawler",
+  "version": "4.0.0",
+  "description": "Advanced web crawler with visual accuracy features for React/Vue/Angular SPAs",
+  "main": "crawler.js",
   "scripts": {
     "crawl": "node crawler.js",
-    "test": "node highest-standard-test-v2.js",
-    "test:visual": "node visual-test.js",
-    "test:structure": "node highest-standard-test-v2.js",
-    "recrawl-and-test": "node crawler.js && node highest-standard-test-v2.js",
-    "validate": "node highest-standard-test-v2.js"
+    "test": "jest",
+    "test:similarity": "jest test/similarity.test.js --verbose",
+    "test:similarity:watch": "jest test/similarity.test.js --watch",
+    "baseline:capture": "node test/capture-baselines.js",
+    "e2e": "node test/run-full-test.js",
+    "e2e:manual": "npm run crawl && npm run baseline:capture && npm run test:similarity",
+    "e2e:analyze": "node test/e2e-improve.js --dry-run",
+    "e2e:improve": "node test/e2e-improve.js",
+    "e2e:thresholds": "node test/e2e-improve.js --thresholds",
+    "clean": "./scripts/quick-cleanup.sh",
+    "test:server": "node test/utils/test-server.js",
+    "test:server:background": "node test/utils/test-server.js &"
   },
   "repository": {
     "type": "git",
@@ -24,9 +31,20 @@
   },
   "homepage": "https://github.com/fairusinampratama/cmlabs-backend-crawler-freelance-test#readme",
   "dependencies": {
+    "express": "^4.22.1",
     "js-beautify": "^1.15.4",
+    "p-limit": "^7.3.0",
+    "p-retry": "^8.0.0",
     "pixelmatch": "^7.1.0",
     "playwright": "^1.59.1",
     "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.3.0",
+    "cli-progress": "^3.12.0",
+    "jest": "^30.3.0",
+    "jest-html-reporter": "^4.4.0",
+    "jest-junit": "^16.0.0",
+    "supertest": "^7.2.2"
   }
 }

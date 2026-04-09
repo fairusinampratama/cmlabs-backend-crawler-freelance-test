@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-04-08T09:49:51.093Z",
+  "summary": {
+    "totalTargets": 0,
+    "passed": 0,
+    "failed": 0,
+    "averageSimilarity": null
+  },
+  "targets": {},
+  "globalIssues": [],
+  "improvementPlan": {
+    "immediate": [],
+    "shortTerm": [],
+    "longTerm": []
+  }
+}

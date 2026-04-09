@@ -1,0 +1,8 @@
+{
+  "runs": [],
+  "thresholds": {
+    "cmlabs": 95,
+    "sequence": 90,
+    "reactdev": 85
+  }
+}
