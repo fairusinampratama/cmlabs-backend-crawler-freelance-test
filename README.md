@@ -8,6 +8,8 @@ The crawler uses a "back to basics" approach that prioritizes native browser beh
 
 - **Native Asset Resolution**: Injects `<base href="...">` so the browser natively resolves relative CSS, images, and fonts without regex replacements.
 - **Content De-Hydration**: Strips all `<script>` tags and preloads to prevent React/Vue from wiping the populated DOM when viewed offline.
+- **Auto-Beautification**: Integrated `js-beautify` ensures the output HTML is formatted and readable for humans.
+- **Crawl Manifest**: Generates an `output/manifest.json` for easy auditing of crawl results.
 - **Smart Lazy-Loading**: Smooth-scroll trigger for `IntersectionObserver` callbacks, ensuring below-the-fold content renders before capture.
 - **Stabilization Suite**: Automatic cookie/modal dismissal, CSS animation freezing, and carousel resetting for deterministic visual results.
 - **Non-Destructive Height Handling**: Visual comparator applies soft `min-height` constraints only to `html` and `body`, never to internal framework components — preventing Next.js flex layout collapse.
@@ -29,23 +31,24 @@ Threshold: **≥ 90% similarity** for all targets.
 npm install
 ```
 
-### Full E2E Workflow
+### Full E2E Workflow (Recommended)
 ```bash
 npm run e2e
 ```
+*Note: This performs a crawl, captures live site baselines, and runs similarity tests automatically.*
 
 ### Manual Execution
 ```bash
 npm run clean                    # Clean previous artifacts
-npm run crawl                    # Crawl targets to output/
+npm run crawl                    # Crawl targets to output/ (Beautified)
 npm run baseline:capture         # Capture live site baselines
 npm run test:similarity          # Run Jest similarity test
 ```
 
 ## 📂 Project Structure
 ```
-├── crawler.js              # Core V5 Crawler
-├── output/                 # Extracted HTML files
+├── crawler.js              # Core V6 Crawler (Beautified Output)
+├── output/                 # Extracted HTML files + manifest.json
 ├── test/
 │   ├── baselines/          # Live site snapshots (ground truth)
 │   ├── crawled/            # Captured crawled output snapshots
