@@ -47,7 +47,10 @@ describe('Crawler Similarity Tests', () => {
       console.log(`\n🚀 Test server started on port ${serverPort}`);
     }
 
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--disable-web-security']
+    });
     context = await browser.newContext({ viewport: CONFIG.viewport });
     comparator = new VisualComparator({ threshold: 0.1 });
   });
@@ -99,15 +102,19 @@ describe('Crawler Similarity Tests', () => {
         : htmlPath;
 
       console.log(`\n   📸 Capturing: ${target.name}`);
-      console.log(`   🌐 URL: ${crawledUrl}`);
       console.log(`   📏 Exact Baseline Height to Enforce: ${exactBaselineHeight}`);
 
-      // Capture screenshot of crawled HTML
+      // NEW: Create fresh context and page for each target to prevent interference
+      const context = await browser.newContext({
+        viewport: CONFIG.viewport,
+        deviceScaleFactor: 1
+      });
       const page = await context.newPage();
+
       try {
         await comparator.captureScreenshot(page, crawledUrl, crawledScreenshotPath, exactBaselineHeight);
       } finally {
-        await page.close();
+        await context.close(); // Closes page as well
       }
 
       // Compare with baseline

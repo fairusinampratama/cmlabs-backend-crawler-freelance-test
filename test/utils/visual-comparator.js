@@ -214,52 +214,45 @@ class VisualComparator {
    * @param {Object} options - Additional options
    */
   async captureScreenshot(page, urlOrPath, outputPath, maxHeight = 10000, options = {}) {
-    // Determine if this is a URL or file path
     const isHttpUrl = urlOrPath.startsWith('http://') || urlOrPath.startsWith('https://');
     const targetUrl = isHttpUrl ? urlOrPath : 'file://' + path.resolve(urlOrPath);
 
-    // Use load to prevent timeouts from tracking scripts / websockets
-    const waitUntil = 'load';
-    const timeout = 60000; // Increased to 60s to prevent timeouts
+    console.log(`   🌐 Navigating to: ${targetUrl}`);
 
-    await page.goto(targetUrl, { waitUntil, timeout });
+    // Diagnostic listeners
+    page.on('console', msg => {
+      if (msg.type() === 'error' || msg.type() === 'warning') console.log(`      [Browser ${msg.type()}] ${msg.text()}`);
+    });
+    page.on('pageerror', err => {
+      console.log(`      [Page Error] ${err.message}`);
+    });
+    page.on('requestfailed', request => {
+      console.log(`      [Resource Failed] ${request.url()} - ${request.failure()?.errorText || 'unknown'}`);
+    });
 
-    // Wait for images and content to load
-    // local file:// URLs need more time to fetch baseline assets via <base href>
-    await page.waitForTimeout(isHttpUrl ? 3000 : 7000);
+    // Use the reliable strategy from diagnostic script
+    await page.goto(targetUrl, {
+      waitUntil: 'networkidle',
+      timeout: 120000
+    });
 
-    // Apply height fixes for both HTTP and file:// URLs
-    // This ensures crawled HTML expands to full content height
+    // Stabilization for lazy assets
+    await page.waitForTimeout(7000);
+
+    // Height expansion
     await this._forceHeightExpansion(page, maxHeight);
 
-    // Optional: Apply custom fixes before screenshot
-    if (options.beforeScreenshot) {
-      await options.beforeScreenshot(page);
-    }
-
-    // Ensure all fonts are fully loaded and clean up dynamic artifacts
     await page.evaluate(async () => {
+      // Basic font wait
       if (document.fonts && document.fonts.ready) {
         await document.fonts.ready;
       }
-      // Remove skeleton loaders and placeholders
-      document.querySelectorAll('[class*="skeleton"], [class*="placeholder"], .loading, .shimmer').forEach(el => {
-        el.style.opacity = '1';
-        el.style.visibility = 'visible';
-        el.classList.remove('skeleton', 'placeholder', 'loading', 'shimmer');
-      });
-      // Force all images to be visible and ignore lazy loading
-      document.querySelectorAll('img').forEach(img => {
-        if (img.dataset.src) img.src = img.dataset.src;
-        img.style.opacity = '1';
-        img.style.visibility = 'visible';
-        img.removeAttribute('loading');
-      });
+      // Simple scroll to top
       window.scrollTo(0, 0);
     });
-    await page.waitForTimeout(500);
 
-    // Capture full page
+    await page.waitForTimeout(2000);
+
     await page.screenshot({
       path: outputPath,
       fullPage: true
@@ -317,7 +310,7 @@ class VisualComparator {
 
     // Now force height expansion while preserving content
     const calculatedHeight = await page.evaluate((maxH) => {
-      // PHASE 1 FIX: Smart height calculation with deduplication awareness
+      // Smart height calculation with deduplication awareness
       const contentContainers = document.querySelectorAll(
         '#__next > div, #root > div, main, [role="main"]'
       );
@@ -347,37 +340,16 @@ class VisualComparator {
         }
       }
 
-      // PHASE 1 FIX: Cap height to prevent runaway expansion
+      // Cap height to prevent runaway expansion
       // USE EXACT BASELINE HEIGHT directly.
       const targetHeight = maxH;
       const heightPx = `${targetHeight}px`;
 
-      // Apply height constraints strictly to match baseline exactly
-      document.documentElement.style.height = heightPx;
+      // Apply height gently to match baseline exactly
+      // Do NOT use max-height or overflow: hidden, as Next.js flex layouts will completely collapse to 0px
+      // Also do NOT force internal React containers like #__next > div to match this height, as Next.js sibling elements will stack.
       document.documentElement.style.minHeight = heightPx;
-      document.documentElement.style.maxHeight = heightPx;
-      document.documentElement.style.overflow = 'hidden';
-
-      document.body.style.height = heightPx;
       document.body.style.minHeight = heightPx;
-      document.body.style.maxHeight = heightPx;
-      document.body.style.overflow = 'hidden';
-
-      // Expand root containers but also cap them
-      const rootElements = document.querySelectorAll('#__next, #root, #app');
-      rootElements.forEach(el => {
-        el.style.height = heightPx;
-        el.style.minHeight = heightPx;
-        el.style.maxHeight = heightPx;
-        el.style.overflow = 'hidden';
-      });
-
-      // Force content containers to expand or cap
-      contentContainers.forEach(container => {
-        container.style.height = 'auto'; // Let content flow but it will be clipped by parents
-        container.style.minHeight = heightPx;
-        container.style.overflow = 'visible';
-      });
 
       // Remove any height-constraining CSS
       const heightConstrained = document.querySelectorAll(
@@ -392,14 +364,12 @@ class VisualComparator {
       return {
         targetHeight,
         maxContentHeight,
-        hasMeaningfulContent,
-        rootCount: rootElements.length
+        hasMeaningfulContent
       };
     }, maxHeight);
 
     console.log(`[Height Expansion] Target: ${calculatedHeight.targetHeight}px, ` +
-      `Content: ${calculatedHeight.maxContentHeight}px, ` +
-      `Roots: ${calculatedHeight.rootCount}`);
+      `Content: ${calculatedHeight.maxContentHeight}px`);
 
     // Wait for reflow
     await page.waitForTimeout(1000);
