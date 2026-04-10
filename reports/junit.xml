@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="4" failures="0" errors="0" time="523.884">
+  <testsuite name="Crawler Similarity Tests" errors="0" failures="0" skipped="0" timestamp="2026-04-10T02:25:31" time="523.795" tests="4">
+    <testcase classname="Crawler Similarity Tests cmlabs - visual similarity" name="Crawler Similarity Tests cmlabs - visual similarity" time="193.026">
+    </testcase>
+    <testcase classname="Crawler Similarity Tests sequence - visual similarity" name="Crawler Similarity Tests sequence - visual similarity" time="127.451">
+    </testcase>
+    <testcase classname="Crawler Similarity Tests reactdev - visual similarity" name="Crawler Similarity Tests reactdev - visual similarity" time="202.087">
+    </testcase>
+    <testcase classname="Similarity Report Generation generate summary report" name="Similarity Report Generation generate summary report" time="0.003">
+    </testcase>
+  </testsuite>
+</testsuites>
