@@ -21,8 +21,8 @@ Threshold: **≥ 90% similarity** for all targets.
 | Target Website | Type | Threshold | Result | Status |
 | :--- | :--- | :--- | :--- | :--- |
 | **Sequence.day** | SPA | 90% | **100.00%** | ✅ PASS |
-| **React.dev** | SSR | 90% | **99.74%** | ✅ PASS |
-| **Cmlabs.co** | SSR | 90% | **93.64%** | ✅ PASS |
+| **React.dev** | SSR | 90% | **100.00%** | ✅ PASS |
+| **Cmlabs.co** | SSR | 90% | **93.87%** | ✅ PASS |
 
 ## 🛠 Usage & Testing
 
