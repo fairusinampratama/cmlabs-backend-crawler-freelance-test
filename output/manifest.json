@@ -1,0 +1,28 @@
+{
+  "crawler": "Advanced SPA/PWA Crawler V6",
+  "generatedAt": "2026-04-10T06:44:47.710Z",
+  "totalResults": 3,
+  "results": [
+    {
+      "name": "cmlabs.html",
+      "url": "https://cmlabs.co",
+      "size": 5428221,
+      "status": "SUCCESS",
+      "timestamp": "2026-04-10T06:44:31.931Z"
+    },
+    {
+      "name": "sequence.html",
+      "url": "https://sequence.day",
+      "size": 77573,
+      "status": "SUCCESS",
+      "timestamp": "2026-04-10T06:44:39.396Z"
+    },
+    {
+      "name": "free_choice.html",
+      "url": "https://react.dev",
+      "size": 306801,
+      "status": "SUCCESS",
+      "timestamp": "2026-04-10T06:44:47.629Z"
+    }
+  ]
+}

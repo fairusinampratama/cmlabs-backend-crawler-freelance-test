@@ -6,15 +6,18 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
+const beautify = require('js-beautify').html;
 
 class Crawler {
   constructor(options = {}) {
     this.options = {
       outputDir: './output',
       headless: true,
+      beautify: true,
       ...options
     };
     this.browser = null;
+    this.results = [];
   }
 
   async init() {
@@ -29,6 +32,7 @@ class Crawler {
       await this.browser.close();
       this.browser = null;
     }
+    this.generateManifest();
   }
 
   async crawl(urls) {
@@ -91,10 +95,7 @@ class Crawler {
       await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => { });
 
       // 3. Dismiss cookie/consent popups and clean up modals
-      // Critical: cmlabs.co shows a cookie consent dialog on first visit,
-      // adding 'modal-open' + overflow:hidden to body, distorting page height
       await page.evaluate(() => {
-        // Click common accept/close buttons
         const consentSelectors = [
           '[id*="cookie"] button', '[class*="cookie"] button',
           '[id*="consent"] button', '[class*="consent"] button',
@@ -105,17 +106,14 @@ class Crawler {
           const btn = document.querySelector(sel);
           if (btn) { btn.click(); break; }
         }
-        // Remove persistent overlays
         document.querySelectorAll('[class*="cookie"], [class*="consent"], .modal-backdrop').forEach(el => el.remove());
-        // Restore body scroll state (Bootstrap modal-open side effect)
         document.body.classList.remove('modal-open');
         document.body.style.removeProperty('overflow');
         document.body.style.removeProperty('padding-right');
         document.documentElement.style.removeProperty('overflow');
-        // Remove visible modals
         document.querySelectorAll('.modal.show, [role="dialog"][aria-modal="true"]').forEach(el => el.remove());
       });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
 
       // 4. Freeze carousels and dynamic elements
       await page.evaluate(() => {
@@ -129,7 +127,6 @@ class Crawler {
       });
 
       // 5. Absolute Path Resolution (Inject <base>)
-      // This is native HTML magic that fixes all relative CSS/image paths
       const origin = new URL(url).origin;
       await page.evaluate((baseHref) => {
         let baseElement = document.querySelector('base');
@@ -141,14 +138,12 @@ class Crawler {
       }, origin);
 
       // 4. De-Hydration (Anti-Wipe mechanisms)
-      // This strips scripts so opening the HTML locally doesn't cause React/Vue to wipe the DOM
       await page.evaluate(() => {
         document.querySelectorAll('script').forEach(el => el.remove());
         document.querySelectorAll('noscript').forEach(el => el.remove());
         document.querySelectorAll('link[as="script"]').forEach(el => el.remove());
         document.querySelectorAll('link[rel="modulepreload"]').forEach(el => el.remove());
 
-        // Remove standard Next.js / React hydration hints
         const nextData = document.getElementById('__NEXT_DATA__');
         if (nextData) nextData.remove();
 
@@ -162,14 +157,22 @@ class Crawler {
         document.head.appendChild(style);
       });
 
-      // Extract the exact active DOM state natively without overrides
       const html = await page.content();
+      const filePath = this.saveToFile(url, html);
 
-      this.saveToFile(url, html);
+      const result = {
+        url,
+        filePath,
+        size: fs.statSync(filePath).size,
+        timestamp: new Date().toISOString(),
+        status: 'SUCCESS'
+      };
+      this.results.push(result);
 
-      return { url, html, size: html.length };
+      return result;
     } catch (error) {
       console.error(`   ❌ Failed to crawl ${url}:`, error.message);
+      this.results.push({ url, status: 'FAILED', error: error.message, timestamp: new Date().toISOString() });
       return { url, error: error.message };
     } finally {
       await context.close();
@@ -180,10 +183,40 @@ class Crawler {
     if (!fs.existsSync(this.options.outputDir)) {
       fs.mkdirSync(this.options.outputDir, { recursive: true });
     }
+
+    let content = html;
+    if (this.options.beautify) {
+      content = beautify(html, {
+        indent_size: 2,
+        indent_char: ' ',
+        max_preserve_newlines: 1,
+        unformatted: ['code', 'pre', 'em', 'strong', 'span'],
+        indent_inner_html: true
+      });
+    }
+
     const filename = this.urlToFilename(url);
     const filePath = path.join(this.options.outputDir, filename);
-    fs.writeFileSync(filePath, html, 'utf-8');
+    fs.writeFileSync(filePath, content, 'utf-8');
     return filePath;
+  }
+
+  generateManifest() {
+    const manifestPath = path.join(this.options.outputDir, 'manifest.json');
+    const manifest = {
+      crawler: "Advanced SPA/PWA Crawler V6",
+      generatedAt: new Date().toISOString(),
+      totalResults: this.results.length,
+      results: this.results.map(r => ({
+        name: path.basename(r.filePath || ''),
+        url: r.url,
+        size: r.size,
+        status: r.status,
+        timestamp: r.timestamp
+      }))
+    };
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    console.log(`\n📋 Manifest generated: ${manifestPath}`);
   }
 
   urlToFilename(urlStr) {
@@ -211,10 +244,10 @@ if (require.main === module) {
   ];
 
   async function runCLI() {
-    console.log('🕷️ API-Compliant Web Crawler (V5)\n');
+    console.log('🕷️ API-Compliant Web Crawler (V6 - Refined Structure)\n');
     console.log('='.repeat(60));
 
-    const crawler = new Crawler({ headless: true });
+    const crawler = new Crawler({ headless: true, beautify: true });
     await crawler.init();
 
     for (const target of TARGETS) {
@@ -222,17 +255,19 @@ if (require.main === module) {
       console.log(`   URL: ${target.url}`);
 
       const result = await crawler.crawlPage(target.url);
-      if (result.html) {
-
-        // Rename if filename forces it to differ from default urlToFilename
+      if (result.status === 'SUCCESS') {
+        // Handle custom filenames from TARGETS
         const defaultFilename = crawler.urlToFilename(target.url);
         if (defaultFilename !== target.filename) {
           const oldPath = path.join(crawler.options.outputDir, defaultFilename);
           const newPath = path.join(crawler.options.outputDir, target.filename);
-          if (fs.existsSync(oldPath)) fs.renameSync(oldPath, newPath);
+          if (fs.existsSync(oldPath)) {
+            fs.renameSync(oldPath, newPath);
+            // Update result for manifest
+            result.filePath = newPath;
+          }
         }
-
-        console.log(`   ✅ Saved: ${target.filename}`);
+        console.log(`   ✅ Saved & Beautified: ${target.filename}`);
       }
     }
 
