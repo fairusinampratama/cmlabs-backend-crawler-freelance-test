@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-04-10T06:54:27.695Z",
+  "targets": [
+    {
+      "name": "cmlabs",
+      "url": "https://cmlabs.co",
+      "threshold": 90
+    },
+    {
+      "name": "sequence",
+      "url": "https://sequence.day",
+      "threshold": 90
+    },
+    {
+      "name": "reactdev",
+      "url": "https://react.dev",
+      "threshold": 90
+    }
+  ],
+  "summary": "Run tests to generate results"
+}

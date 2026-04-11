@@ -15,8 +15,8 @@ temp/
 *.bak
 
 # Test artifacts
-test/crawled/*
-test/diffs/*
+# test/crawled/*
+# test/diffs/*
 !test/crawled/.gitkeep
 !test/diffs/.gitkeep
 # Keep baselines in repo (they're reference screenshots)
@@ -87,6 +87,6 @@ playwright-report/
 test-results/
 
 # Misc
-*.diff.png
+# *.diff.png
 *.actual.png
 *.expected.png
